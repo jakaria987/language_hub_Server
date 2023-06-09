@@ -29,6 +29,7 @@ async function run() {
 
     const classesCollection = client.db('languageDb').collection('classes');
     const instructorsCollection = client.db('languageDb').collection('instructors');
+    const cartCollection = client.db('languageDb').collection('carts');
 
     app.get('/classes', async(req, res) => {
         const result = await classesCollection.find().toArray();
@@ -36,6 +37,26 @@ async function run() {
     })
     app.get('/instructors', async(req, res) => {
         const result = await instructorsCollection.find().toArray();
+        res.send(result);
+    })
+
+
+
+    // cart collection
+    
+    app.get('/carts', async (req, res) => {
+        const email = req.query.email;
+        if(!email){
+            res.send([]);
+        }
+        const query = {email : email}
+        const result = await cartCollection.find(query).toArray();
+        res.send(result);
+    })
+    app.post('/carts', async (req, res) => {
+        const item = req.body;
+        console.log(item);
+        const result = await cartCollection.insertOne(item);
         res.send(result);
     })
 
