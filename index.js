@@ -77,7 +77,7 @@ async function run() {
 
 
     // users related apis
-    app.get('/users', verifyJWT, verifyAdmin, verifyInstructor, async(req, res) => {
+    app.get('/users', verifyJWT, verifyAdmin, async(req, res) => {
         const result = await usersCollection.find().toArray();
         res.send(result);
     })
@@ -145,10 +145,48 @@ async function run() {
 
 
 
-    app.get('/classes', async(req, res) => {
+    app.get('/classes',  async(req, res) => {
         const result = await classesCollection.find().toArray();
         res.send(result);
     })
+    app.post('/classes', async (req, res) => {
+        const newClass = req.body
+        const result = await classesCollection.insertOne(newClass);
+        res.send(result);
+    });
+    
+    app.patch('/classes/:id', async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+
+        let updateDoc;
+
+        if (req.body.action === 'approve') {
+            updateDoc = {
+                $set: {
+                    status: 'approved'
+                }
+            };
+        } else if (req.body.action === 'deny') {
+            updateDoc = {
+                $set: {
+                    status: 'denied'
+                }
+            };
+        } else if (req.body.action === 'feedback') {
+            updateDoc = {
+                $set: {
+                    feedback: req.body.feedback
+                }
+            };
+        } else {
+            return res.status(400).json({ error: 'Invalid action' });
+        }
+
+        const result = await classesCollection.findOneAndUpdate(filter, updateDoc);
+        res.send(result);
+    })
+
     app.get('/instructors', async(req, res) => {
         const result = await instructorsCollection.find().toArray();
         res.send(result);
