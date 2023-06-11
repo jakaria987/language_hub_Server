@@ -149,12 +149,31 @@ async function run() {
         const result = await classesCollection.find().toArray();
         res.send(result);
     })
+    
     app.post('/classes', async (req, res) => {
         const newClass = req.body
         const result = await classesCollection.insertOne(newClass);
         res.send(result);
     });
-    
+    app.get('/classes', async (req, res) => {
+        let query = {};
+        if (req.query.email) {
+            query = { email: req.query.email };
+        }
+        const result = await classesCollection.find(query).toArray();
+        res.send(result);
+    });
+
+    app.get('/myclasses', async (req, res) => {
+        let query = {};
+        if (req.query?.email) {
+          query = { email: req.query.email };
+        }
+  
+        const result = await classesCollection.find(query).toArray();
+        res.send(result)
+      });
+
     app.patch('/classes/:id', async (req, res) => {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
